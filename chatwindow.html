@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script>
+    <link rel='stylesheet prefetch' href='http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'>
+    <link rel="stylesheet" href="css/style.css">
+	<title></title>
+</head>
+<body>
+	<h1>CHAT ROOM</h1>
+	<div id='messagesDiv'></div>
+    <input type='text' id='messageInput' placeholder='Message'>
+    <button class="btn btn-default" type="button" id="sendMsg">Send</button>
+    <hr>
+    <h1>EMAIL</h1>
+    <div class="row"><br/><br/></div>
+    <input type='string' id='emailTo' placeholder='Send to Email?'>
+    <div class="row"><br/><br/></div>
+    <textarea placeholder="email text here" rows="25" cols="100"></textarea>
+    <button class="btn btn-default" type="button" id="emailSend">Send Mail</button>
+    <div class="row"><br/><br/></div>
+    <div class="row"><br/><br/></div>
+    <button class="btn btn-default" type="button" id="logoutBtn">Logout</button>
+<script>
+	var ref = new Firebase("https://appver1.firebaseio.com/");
+	
+	var authLogin;
+	var authEmail;
+	var dispName; //logged in user's user name.
+		/* Create a callback which logs the current auth state */
+
+		function authDataCallback(authData) {
+		  if (authData) {
+		  	ref.child("/users/"+authData.uid+"/usr_db_name/").on("value", function(snapshot) {
+		  console.log('user name of logged in memeber is '+snapshot.val());
+		  dispName=snapshot.val();  
+		});
+		  	/*CHAT code */
+	var ref1 = new Firebase('https://appver1.firebaseio.com/chat_room_msgs');
+	      $('#messageInput').keypress(function (e) {
+	        if (e.keyCode == 13) {
+	          var text = $('#messageInput').val();
+	          ref1.push({name: dispName, text: text});
+	          $('#messageInput').val('');
+	        }
+	      });
+
+	$('#sendMsg').on('click',function(){
+		var text = $('#messageInput').val();
+	          ref1.push({name: dispName, text: text});
+	          $('#messageInput').val('');
+	});      
+	      
+
+	      ref1.on('child_added', function(snapshot) {
+	        var message = snapshot.val();
+	        displayChatMessage(message.name, message.text);
+	      });
+	      function displayChatMessage(name, text) {
+	        $('<div/>').text(text).prepend($('<em/>').text(name+': ')).appendTo($('#messagesDiv'));
+	        $('#messagesDiv')[0].scrollTop = $('#messagesDiv')[0].scrollHeight;
+	      };
+	      	
+	      	authLogin=authData.uid;
+		    console.log("User " + authData.uid + " is logged in with " + authData.provider);
+		  } else {
+		    console.log("User is logged out");
+		  }
+		}
+		
+		// EMAIL CODE
+
+		var refEmailto = new Firebase('https://appver1.firebaseio.com/users/');
+		console.log('kdjaskjf');
+		 refEmailto.orderByChild("email_id").equalTo("test01@test.com").on("child_added", function(snapshot) {
+		  console.log(snapshot.val());
+		  console.log(snapshot.key());
+		  //CALL function here to set mail_input of this key above as the email text area input message.
+		});
+
+		ref.onAuth(authDataCallback);
+
+	  $('#logoutBtn').on('click',function(){
+      ref.unauth();
+      document.location.href = ("index.html");
+      console.log(authLogin);
+      var usersRef = ref.child("users").child(authLogin);
+      usersRef.update({ usr_status:false });
+    });
+
+
+
+</script>
+</body>
+</html>

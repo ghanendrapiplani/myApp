@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html >
+  <head>
+    <meta charset="UTF-8">
+    <title>Login/Sign-In</title>
+    <script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel='stylesheet prefetch' href='http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'>
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+
+  <body>
+
+    <div class="account-created"><h2>Success! Account created.</h2></div>
+    <div class="email-duplicate"><h2>Sorry, this email id has already been registered.</h2></div>
+    <div class="email-invalid"><h2>This does not seem to be a vaild email id.</h2></div>
+
+    <div class="password-incorrect"><h2>Email Id or Password incorrect.</h2></div>
+    <div class="login-success"><h2>Email Id or Password incorrect.</h2></div>
+
+    <div class="logmod">
+  <div class="logmod__wrapper">
+    <span class="logmod__close">Close</span>
+    <div class="logmod__container">
+      <ul class="logmod__tabs">
+        <li data-tabtar="lgm-2"><a href="#">Login</a></li>
+        <li data-tabtar="lgm-1"><a href="#">Sign Up</a></li>
+      </ul>
+      <div class="logmod__tab-wrapper">
+      <div class="logmod__tab lgm-1">
+        <div class="logmod__heading">
+          <span class="logmod__heading-subtitle">Enter your personal details <strong>to create an acount</strong></span>
+        </div>
+        <div class="logmod__form">
+          <form accept-charset="utf-8" action="#" class="simform">
+          <div class="sminputs">
+              <div class="input full">
+                <label class="string " for="user-name">User Name*</label>
+                <input class="string" id='nameInput' maxlength="255" id="user-name" placeholder="User Name" type="text" size="50" />
+              </div>
+            </div>
+            <div class="sminputs">
+              <div class="input full">
+                <label class="string"  for="user-name">Email*</label>
+                <input class="string" id='emailInput' maxlength="255" id="user-email" placeholder="Email" type="email" size="50" />
+              </div>
+            </div>
+            <div class="sminputs">
+              <div class="input string">
+                <label class="string" for="user-pw">Password *</label>
+                <input class="string" id='pswrdInput' maxlength="255" id="user-pw" placeholder="Password" type="password" size="50" />
+              </div>
+            </div>
+            <div class="simform__actions">
+              <button class="sumbit"  type="sumbit" id="Btn">Create Account</button>
+              <span class="simform__actions-sidetext">By creating an account you agree to our <a class="special" href="#" target="_blank" role="link">Terms & Privacy</a></span>
+            </div> 
+          </form>
+        </div>
+      </div>
+      <div class="logmod__tab lgm-2">
+        <div class="logmod__heading">
+          <span class="logmod__heading-subtitle">Enter your email and password <strong>to sign in</strong></span>
+        </div> 
+        <div class="logmod__form">
+          <form accept-charset="utf-8" action="#" class="simform">
+            <div class="sminputs">
+              <div class="input full">
+                <label class="string" for="user-name">Email*</label>
+                <input class="string"  maxlength="255" id='loginEmail' placeholder="Email" type="email" size="50" />
+              </div>
+            </div>
+            <div class="sminputs">
+              <div class="input full">
+                <label class="string" for="user-pw">Password *</label>
+                <input class="string" maxlength="255" id='loginPswrd' placeholder="Password" type="password" size="50" />
+              </div>
+            </div>
+            <div class="simform__actions">
+              <button class="sumbit"  id="loginBtn" type="sumbit">Log In</button>
+              <span class="simform__actions-sidetext"><a class="special" role="link" href="#">Forgot your password?<br>Click here</a></span>
+            </div> 
+          </form>
+        </div> 
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+
+        <script src="js/index.js"></script>
+
+ <break>    
+
+<script>
+    $('.account-created').hide();
+    $('.email-duplicate').hide();
+    $('.email-invalid').hide();
+    $('.password-incorrect').hide();
+    $('.login-success').hide();
+  var ref = new Firebase("https://appver1.firebaseio.com/");
+  $('#Btn').on("click", function(){
+    var usrid=$('#emailInput').val();
+    var usrpswd=$('#pswrdInput').val();
+    $('#emailInput').val('');
+    $('#pswrdInput').val('');
+    ref.createUser({
+      email: String(usrid),
+      password: String(usrpswd)
+    }, function(error, userData) {
+      if (error) {
+        switch (error.code) {
+          case "EMAIL_TAKEN":
+            $('.account-created').hide();
+            $('.email-invalid').hide();
+            $('.email-duplicate').show();
+            console.log("The new user account cannot be created because the email is already in use.");
+            break;
+          case "INVALID_EMAIL":
+            $('.account-created').hide();
+          $('.email-duplicate').hide();
+          $('.email-invalid').show();
+            console.log("The specified email is not a valid email.");
+            break;
+            default:
+            console.log("Error creating user:", error);
+        }
+     } else {
+          $('.email-duplicate').hide();
+          $('.email-invalid').hide();
+          $('.account-created').show();
+          
+          console.log("Successfully created user account with uid:", userData.uid);
+          dbdb=userData.uid;
+          var usr_status;
+          console.log(usrid);
+          var usrName= $('#nameInput').val();
+          var usersRef = ref.child("users").child(dbdb);
+        usersRef.set({
+           
+            email_id: String(usrid),
+            usr_db_name : String(usrName),
+            usr_status : false,
+            mail_input : String("null")
+            
+        });
+      }
+    });
+});
+
+
+
+    /* LOGGING USERS IN */
+
+    // Create a callback to handle the result of the authentication
+      function authHandler(error, authData) {
+        if (error) {
+          console.log("Login Failed!", error);
+        } else {
+          console.log("Authenticated successfully with payload:", authData);
+          document.location.href = ("chatwindow.html");
+          var usersRef = ref.child("users").child(authData.uid);
+          usersRef.update({ usr_status:true });
+        }
+      }
+
+      $('#loginBtn').on('click',function(){
+        var logId=$('#loginEmail').val();
+        var logPswrd=$('#loginPswrd').val();
+        //with an email/password combination
+      ref.authWithPassword({
+        email    : String(logId),
+        password : String(logPswrd)
+      }, authHandler);
+
+      });
+      
+    /*Logging user out*/
+
+    $('#logoutBtn').on('click',function(){
+      ref.unauth();
+      console.log(authData.uid);
+      var usersRef = ref.child("users").child(authData.uid);
+      usersRef.update({ usr_status:false });
+    });
+
+</script>    
+    
+</body>
+</html>
