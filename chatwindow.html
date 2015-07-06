@@ -118,26 +118,12 @@
 		emailRef.on('child_added', function(snapshot) {
 	        var emailRec = snapshot.val();
 	        console.log(emailRec);
-	       	
-	        var myArray = [{emailRec}];
-
-			myFunction(myArray);
-
-			function myFunction(arr) {
-			    var out = "";
-			    var i;
-			    for(i = 0; i < arr.length; i++) {
-			        out += '<span "' + arr[i] + '">' + 
-			        arr[i].display + '</span><br>';
-			    }
-			    document.getElementById("emailSenderDiv").innerHTML = out;
-			}
-
-	        // document.getElementById("emailSenderDiv").innerHTML = emailRec.Mail_Content;
-	        // document.getElementById("emailSubjectDiv").innerHTML = emailRec.Subject;
-	        // document.getElementById('emailContentDiv').innerHTML = emailRec.Mail_from;
+	  		emailFunc(emailRec.Mail_Content, emailRec.Mail_from, emailRec.Subject);
 	      });
-
+		function emailFunc(Mail_Content,Mail_from,Subject) {
+	        $('<div/>').text(' Mail Content '+Mail_Content).prepend($('<strong/>').text('Subject->'+Subject)).prepend($('<em/>').text('Mail From '+Mail_from+': ')).appendTo($('#emailSenderDiv'));
+	        $('#emailSenderDiv')[0].scrollTop = $('#emailSenderDiv')[0].scrollHeight;
+	      };
 	});
 	      	
 	      	authLogin=authData.uid;
@@ -146,42 +132,6 @@
 		    console.log("User is logged out");
 		  }
 		}
-		
-		// EMAIL CODE
-	// 	var emailAddressedto;
-	// 	var emailSender;
-	// 	var emailSubject;
-	// 	var emailText;
-	// 	var authData = ref1.getAuth();
-	// 	console.log('hahaha '+authData.uid);
-	// 	ref1.child("/users/"+authData.uid+"/email_id/").on("value", function(snapshot) {
-
-	// 	console.log('user email id of logged in memeber is '+snapshot.val());
-	// 	  senderEmail=snapshot.val();
-	// 	});
-	// 	 console.log('senders id '+senderEmail);
-	// 	$('#emailSend').on('click',function(){
-	// 		emailAddressedto=$('#emailTo').val();
-	// 	console.log('email to '+emailAddressedto);
-
-	// 	emailSubject=$('#emailSubj').val();
-	// 	emailText=$('#emailInput').val();
-
-
-	// 	var refEmailto = new Firebase('https://appver1.firebaseio.com/users/');
-	// 	 refEmailto.orderByChild("email_id").equalTo(emailAddressedto).on("child_added", function(snapshot) {
-	// 	  console.log(snapshot.val());
-	// 	  var emailAddressedto=snapshot.key();
-	// 	  console.log("fdlsajfldsjldfjsk");
-	// 	  console.log('hahaha '+emailAddressedto);
-	// 	  var emailRef = new Firebase('https://appver1.firebaseio.com/users/'+emailAddressedto+'/mail_input');
-	// 	  console.log('hahaha');
-	// 	  var newMessageRef = messageListRef.push();
- //    		newMessageRef.update({ 'Mail_from':authLogin,'Subject': emailSubject, 'Mail_Content': emailText });
-	// 	  //CALL function here to set mail_input of this key above as the email text area input message.
-
-	// 	});
-	// });
 		ref.onAuth(authDataCallback);
 
 	  $('#logoutBtn').on('click',function(){
